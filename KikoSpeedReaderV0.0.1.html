@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Reading App</title>
+
+    <link id="dynamic-favicon" rel="icon" type="image/gif" href="images/frame_00_delay-0.2s.gif">
+    <script>
+        let faviconIndex = 0;
+        const totalFrames = 59;
+        const frames = []
+        function updateFavicon() {
+          const link = document.getElementById("dynamic-favicon");
+          if (link) {
+            const frameNumber = faviconIndex.toString().padStart(2, '0');
+            link.href=`images/frame_${frameNumber}_delay-0.1s.gif`;
+            faviconIndex = (faviconIndex + 1) % totalFrames;
+          }
+        }
+        setInterval(updateFavicon, 500); // Change every 500ms
+      </script>
+      
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            color: black;
+            border-radius: 30px;
+            border-color: black;
+            border-width: 5px;
+        }
+        textarea {
+                /*width: 80%; /* Make it more responsive */
+                /*max-width: 600px; /* Limit width on larger screens */
+                border-radius: 15px; /* Rounded corners */
+                border: 2px solid #000; /* Black border */
+                padding: 10px; /* Inner spacing */
+                font-size: 16px; /* Readable text */
+                outline: none; /* Removes default focus outline */
+                resize: both ; /* Allow resizing only vertically */
+                box-shadow: 2px 2px 10px #ccc; /* Soft shadow for a modern look */
+                background-color: white; /* Lighter gray */
+            
+                /*transition: all 0.3s ease-in-out; /* Smooth transition */
+        }
+        textarea:hover {
+                /*width: 80%; /* Make it more responsive */
+                /*max-width: 600px; /* Limit width on larger screens */
+                border-radius: 15px; /* Rounded corners */
+                border: 2px solid #000; /* Black border */
+                padding: 10px; /* Inner spacing */
+                font-size: 16px; /* Readable text */
+                outline: none; /* Removes default focus outline */
+                /*resize: both ; /* Allow resizing only vertically */
+                box-shadow: 2px 2px 10px #ccc; /* Soft shadow for a modern look */
+                /*transition: all 0.3s ease-in-out; /* Smooth transition */
+                transform: scale(1.02); /* Slightly enlarge on focus */
+                background-color: #f0f0f0; /* Lighter gray */
+
+        }
+
+        textarea:focus {
+            border-color: #007bff; /* Blue border on focus */
+            box-shadow: 2px 2px 10px rgba(0, 123, 255, 0.3); /* Light blue glow */
+            transform: scale(1.02); /* Slightly enlarge on focus */
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for a modern look */
+        }
+        .dark-mode textarea {
+            background-color: #222; /* Dark background */
+            color: white; /* White text */
+            border-color: white; /* White border */
+            box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2); /* Light shadow */
+
+        }
+        .dark-mode textarea:hover {
+            background-color: #444; /* Dark background */
+            color: white; /* White text */
+            border-color: white; /* White border */
+            box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2); /* Light shadow */
+            transform: scale(1.02); /* Slightly enlarge on focus */
+        
+        }
+        .dark-mode textarea:focus {
+            border-color: #0dcaf0; /* Light blue border */
+            box-shadow: 2px 2px 10px rgba(13, 202, 240, 0.5);
+        }
+
+        .dark-mode {
+            background-color: #333;
+            color: rgba(255, 255, 255, 0.477);
+        }
+        .controls {
+            margin-bottom: 20px;
+
+        }
+        .reading-area {
+            font-size: 20px;
+            padding: 20px;
+            border: 2px solid #000;
+            min-height: 50px;
+            background-color: white;
+            color: black;
+            resize: both;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: normal;
+            border-radius: 30px;
+            border-color: black;
+            border-width: 2px;
+
+            
+        }
+        .dark-mode .reading-area {
+            background-color: #222;
+            color: white;
+            border-color: white;
+            white-space: normal;
+            white-space: normal;
+            border-radius: 30px;
+            border-color: black;
+            border-width: 2px;
+
+        }
+        .highlight {
+            color: red;
+            font-weight: bold;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #ccc;
+            height: 20px;
+            margin-top: 10px;
+            position: relative;
+            cursor: pointer;
+            border-radius: 30px;
+            border-color: black;
+            border-width: 2px;
+            overflow: hidden; /* Ensure the progress bar stays within bounds */
+        }
+        .dark-mode .progress-bar {
+            background-color: #444;
+            border-color: white;
+        }
+        .dark-mode .progress {
+            background-color: #0dcaf0;
+        }
+        .progress {
+            height: 100%;
+            background-color: green;
+            width: 0%;
+            border-radius: 30px;
+            transition: width 0.0000001s ease-in-out; /* Smooth transition for width */
+        }
+        /* Default button styles */
+        button {
+            background-color: #007bff; /* Blue background */
+            color: white; /* White text */
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px; /* Rounded corners */
+            transition: all 0.3s ease-in-out;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            margin: 5px;
+        }
+
+        /* Hover effect */
+        button:hover {
+            background-color: #0056b3; /* Darker blue */
+            transform: scale(1.02); /* Slightly enlarge on focus */
+        }
+
+        /* Dark mode button styles */
+        .dark-mode button {
+            background-color: #444; /* Dark gray background */
+            color: white; /* White text */
+            border: 1px solid white;
+            box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dark mode hover effect */
+        .dark-mode button:hover {
+            background-color: #666; /* Lighter gray */
+            transform: scale(1.02); /* Slightly enlarge on focus */
+        }
+
+                /* Default input styles */
+        input, select {
+            background-color: white;
+            color: rgb(0, 0, 0);
+            border: 2px solid black;
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 8px; /* Rounded corners */
+            outline: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Dark mode styles for inputs */
+        .dark-mode input, 
+        .dark-mode select {
+            background-color: #222; /* Dark background */
+            color: white; /* White text */
+            border: 2px solid white; /* White border */
+            box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dark mode focus effect */
+        .dark-mode input:focus, 
+        .dark-mode select:focus {
+            border-color: #0dcaf0; /* Light blue border */
+            box-shadow: 2px 2px 10px rgba(13, 202, 240, 0.5);
+        }
+        .dark-mode input:hover {
+            background-color: #666; /* Lighter gray */
+            transform: scale(1.10); /* Slightly enlarge on focus */
+        }
+         input:hover {
+            background-color: #f0f0f0; /* Lighter gray */
+            transform: scale(1.10); /* Slightly enlarge on focus */
+        }
+        /* Default font dropdown styles */
+        #fontFamily {
+            background-color: white;
+            color: black;
+            border: 2px solid black;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px; /* Rounded corners */
+            outline: none;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        /* Hover effect */
+        #fontFamily:hover {
+            background-color: #f0f0f0; /* Slightly lighter background */
+            transform: scale(1.02); /* Slightly enlarge */
+        }
+
+        /* Dark mode styles */
+        .dark-mode #fontFamily {
+            background-color: #222; /* Dark background */
+            color: white; /* White text */
+            border: 2px solid white;
+            box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dark mode hover effect */
+        .dark-mode #fontFamily:hover {
+            background-color: #444; /* Slightly lighter gray */
+            transform: scale(1.02);
+        }
+
+        /* Dark mode focus effect */
+        .dark-mode #fontFamily:focus {
+            border-color: #0dcaf0; /* Light blue border */
+            box-shadow: 2px 2px 10px rgba(13, 202, 240, 0.5);
+        }
+
+#readingStats {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .dark-mode #readingStats {
+            color: #ccc;
+        }
+        
+    </style>
+</head>
+<body>
+    <h1>Speed Reading App</h1>
+    <div class="controls">
+        <label>Chunk Size: <input type="number" id="chunkSize" value="3" min="1" max="10"></label>
+        <label>Speed (WPM): <input type="number" id="speed" value="300" min="100" max="1000"></label>
+        <label>Font Size: <input type="number" id="fontSize" value="20" min="12" max="40"></label>
+        <label>Font: <select id="fontFamily" onchange="changeFont()">
+            <option value="Arial">Arial</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Verdana">Verdana</option>
+        </select></label>
+        <label>Dark Mode: <input type="checkbox" id="darkMode" onchange="toggleDarkMode()"></label>
+ <label>Highlight Words: <input type="checkbox" id="highlight"></label>
+        <br><br>
+        <textarea id="inputText" rows="4" cols="50" placeholder="Paste your text here..."></textarea>
+        <br>
+        <button onclick="startReading()">Start</button>
+        <button onclick="pauseReading()">Pause</button>
+        <button onclick="resetReading()">Reset</button>
+    </div>
+    <div id="displayText" class="reading-area"></div>
+<div id="readingStats">
+    </div>
+    <div id="readingStats">
+        <span id="timeEstimate"></span> | 
+        <span id="percentComplete">0%</span> | 
+        <span id="wordCounter">Words: 0/0</span>
+    </div>
+    <div class="progress-bar" id="progressBar" onclick="setProgress(event)">
+        <div id="progress" class="progress"></div>
+    </div>
+    
+    <script>
+        let index = 0;
+        let interval;
+        let words = [];
+        let paused = false;
+        let statsInterval;
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode", document.getElementById("darkMode").checked);
+        }
+
+        function changeFont() {
+            let selectedFont = document.getElementById("fontFamily").value;
+            document.getElementById("displayText").style.fontFamily = selectedFont;
+        }
+        
+        function initializeStats() {
+            let inputText = document.getElementById("inputText").value.trim();
+            words = inputText.length > 0 ? inputText.split(/\s+/) : [];
+            
+            if (words.length > 0) {
+                // Initialize word counter
+                document.getElementById("wordCounter").innerHTML = `Words: 0/${words.length}`;
+                
+                // Calculate initial time estimate
+                const speed = parseInt(document.getElementById("speed").value);
+                const totalWords = words.length;
+                const timeInMinutes = totalWords / speed;
+                const minutes = Math.floor(timeInMinutes);
+                const seconds = Math.round((timeInMinutes - minutes) * 60);
+                document.getElementById("timeEstimate").innerHTML = 
+                    `Time remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    
+                // Initialize progress
+                document.getElementById("percentComplete").innerHTML = "0%";
+                document.getElementById("progress").style.width = "0%";
+            }
+        }
+
+        document.getElementById("inputText").addEventListener("blur", initializeStats);
+
+        function startReading() {
+            if (words.length === 0) {
+                initializeStats();
+            }
+
+            if (words.length === 0) {
+                document.getElementById("displayText").innerHTML = "Please enter text to read.";
+                return;
+            }
+
+            let chunkSize = parseInt(document.getElementById("chunkSize").value);
+            let speed = parseInt(document.getElementById("speed").value);
+            let fontSize = parseInt(document.getElementById("fontSize").value);
+            let highlight = document.getElementById("highlight").checked;
+            let display = document.getElementById("displayText");
+            display.style.fontSize = fontSize + "px";
+            changeFont();
+
+            if (paused) {
+                paused = false;
+                // Resume with current settings
+                const millisecondsPerWord = (60 * 1000) / speed;
+                const millisecondsPerChunk = millisecondsPerWord * chunkSize;
+
+                interval = setInterval(() => {
+                    if (index < words.length) {
+                        let chunk = words.slice(index, index + chunkSize);
+                        let chunkWithSpaces = chunk.map((word, i) => {
+                            if (highlight && i % 2 === 0) {
+                                return `&nbsp; <span class='highlight'>${word}</span>&nbsp;`;
+                            } else {
+                                return word;
+                            }
+                        });
+                        chunkWithSpaces = chunkWithSpaces.join(" ");
+
+                        display.innerHTML = chunkWithSpaces;
+                        index += chunkSize;
+                        updateProgress();
+                    } else {
+                        clearInterval(interval);
+                        display.innerHTML = "Reading complete!";
+                    }
+                }, millisecondsPerChunk);
+
+                startStatsUpdates(chunkSize);
+                return;
+            }
+
+            clearInterval(interval);
+            
+            // Calculate milliseconds per chunk based on WPM and chunk size
+            const millisecondsPerWord = (60 * 1000) / speed;
+            const millisecondsPerChunk = millisecondsPerWord * chunkSize;
+
+            interval = setInterval(() => {
+                if (index < words.length) {
+                    let chunk = words.slice(index, index + chunkSize);
+                    let chunkWithSpaces = chunk.map((word, i) => {
+                        if (highlight && i % 2 === 0) {
+                            return `&nbsp; <span class='highlight'>${word}</span>&nbsp;`;
+                        } else {
+                            return word;
+                        }
+                    });
+                    chunkWithSpaces = chunkWithSpaces.join(" ");
+
+                    display.innerHTML = chunkWithSpaces;
+                    index += chunkSize;
+                    updateProgress();
+                } else {
+                    clearInterval(interval);
+                    display.innerHTML = "Reading complete!";
+                }
+            }, millisecondsPerChunk);
+
+            // Start stats updates
+            startStatsUpdates(chunkSize);
+        }
+
+        function updateProgress() {
+            let display = document.getElementById("displayText");
+            let progress = document.getElementById("progress");
+            let progressBar = document.getElementById("progressBar");
+
+            // Ensure progress bar width matches display area
+            progressBar.style.width = display.offsetWidth + "px";
+            
+            // Calculate progress percentage
+            let progressPercent = Math.min((index / words.length) * 100, 100);
+            progress.style.transition = 'width 0.0000005s ease-in-out'; // Smooth transition
+            progress.style.width = `${progressPercent}%`;
+document.getElementById("percentComplete").innerHTML = 
+                `${Math.round(progressPercent)}%`;
+            
+            // Update time estimate
+            if (words.length > 0) {
+                const speed = parseInt(document.getElementById("speed").value);
+                const remainingWords = words.length - index;
+                const timeInMinutes = remainingWords / speed;
+                const minutes = Math.floor(timeInMinutes);
+                const seconds = Math.round((timeInMinutes - minutes) * 60);
+                document.getElementById("timeEstimate").innerHTML = 
+                    `Time remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Update word counter
+            const currentPosition = Math.min(index, words.length);
+            document.getElementById("wordCounter").innerHTML = 
+                `Words: ${currentPosition}/${words.length}`;
+        }
+
+        function pauseReading() {
+            if (!interval) return; // Don't pause if not running
+            paused = true;
+            clearInterval(interval);
+            interval = null;
+        }
+
+        function resetReading() {
+            // Clear all intervals
+            clearInterval(interval);
+            clearInterval(statsInterval);
+            
+            // Reset variables
+            index = 0;
+            words = [];
+            paused = false;
+            
+            // Reset display text
+            document.getElementById("displayText").innerHTML = "";
+            
+            // Reset progress bar
+            document.getElementById("progress").style.width = "0%";
+            
+            // Reset all stats displays
+            document.getElementById("wordCounter").innerHTML = "Words: 0/0";
+            document.getElementById("timeEstimate").innerHTML = "";
+            document.getElementById("percentComplete").innerHTML = "0%";
+            
+            // Re-initialize stats with fresh text input
+            initializeStats();
+            
+            // Update stats based on current settings
+            updateStatsOnInput();
+        }
+
+        function setProgress(event) {
+            let progressBar = document.getElementById("progressBar");
+            let clickPosition = event.offsetX / progressBar.offsetWidth;
+            index = Math.floor(words.length * clickPosition);
+            updateProgress();
+        }
+
+        // Resize observer to update progress bar when display area changes
+        const resizeObserver = new ResizeObserver(updateProgress);
+        resizeObserver.observe(document.getElementById("displayText"));
+
+        // Add this new function for continuous stats updates
+        function startStatsUpdates(chunkSize) {
+            if (statsInterval) clearInterval(statsInterval);
+            
+            statsInterval = setInterval(() => {
+                if (!paused) {
+                    const currentPosition = Math.min(index, words.length);
+                    
+                    // Update word counter
+                    document.getElementById("wordCounter").innerHTML = 
+                        `Words: ${currentPosition}/${words.length}`;
+                        
+                    // Update time estimate
+                    const speed = parseInt(document.getElementById("speed").value);
+                    const remainingWords = words.length - index;
+                    const timeInMinutes = (remainingWords / speed);
+                    const minutes = Math.floor(timeInMinutes);
+                    const seconds = Math.round((timeInMinutes - minutes) * 60);
+                    
+                    document.getElementById("timeEstimate").innerHTML = 
+                        `Time remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                        
+                    // Update progress
+                    let progressPercent = Math.min((index / words.length) * 100, 100);
+                    document.getElementById("percentComplete").innerHTML = 
+                        `${Math.round(progressPercent)}%`;
+                    document.getElementById("progress").style.width = `${progressPercent}%`;
+                }
+            }, 100);
+        }
+
+        // Add these event listeners after your existing variable declarations
+        function setupInputListeners() {
+            // Add input listeners for real-time updates
+            const inputs = ['speed', 'chunkSize'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', updateStatsOnInput);
+            });
+        }
+
+        function updateStatsOnInput() {
+            if (words.length === 0) return;
+            
+            const speed = parseInt(document.getElementById("speed").value);
+            const chunkSize = parseInt(document.getElementById("chunkSize").value);
+            const remainingWords = words.length - index;
+            
+            // Calculate time based on current settings and remaining words
+            const totalChunks = Math.ceil(remainingWords / chunkSize);
+            const timeInMinutes = (totalChunks * chunkSize) / speed;
+            const minutes = Math.floor(timeInMinutes);
+            const seconds = Math.round((timeInMinutes - minutes) * 60);
+            
+            // Update time estimate
+            document.getElementById("timeEstimate").innerHTML = 
+                `Time remaining: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update word counter
+            document.getElementById("wordCounter").innerHTML = 
+                `Words: ${index}/${words.length}`;
+                
+            // Update progress percentage
+            const progressPercent = Math.min((index / words.length) * 100, 100);
+            document.getElementById("percentComplete").innerHTML = 
+                `${Math.round(progressPercent)}%`;
+        }
+
+        // Add this line at the end of your script section
+        setupInputListeners();
+        
+    </script>
+</body>
+</html>
